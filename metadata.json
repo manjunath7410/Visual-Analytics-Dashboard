@@ -1,0 +1,6 @@
+{
+  "name": "Visual Analytics Dashboard",
+  "description": "Executive Business Intelligence and Visual Analytics platform for data-driven decision making.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
