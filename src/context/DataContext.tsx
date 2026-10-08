@@ -35,6 +35,8 @@ import { calculateDataQuality } from '../utils/dataCleaning';
 import { AnalyticsEngine } from '../utils/analytics/analyticsEngine';
 import { FilterEngine, EMPTY_FILTER_STATE } from '../utils/filterEngine';
 
+export type ThemeMode = 'dark' | 'light' | 'system';
+
 interface DataContextType {
   // Phase 3 & 4 Dataset State
   dataset: Dataset | null;
@@ -98,7 +100,9 @@ interface DataContextType {
   isRefreshing: boolean;
   refreshData: () => void;
   uploadDataset: (meta: Partial<DatasetMeta>, parsedRows: any[], parsedColumns?: ColumnSchema[]) => void;
-  theme: 'dark' | 'light';
+  theme: ThemeMode;
+  effectiveTheme: 'dark' | 'light';
+  setTheme: (mode: ThemeMode) => void;
   toggleTheme: () => void;
 }
 
@@ -314,23 +318,72 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Theme state
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    const saved = localStorage.getItem('acuity_theme');
-    return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+  // Theme state: dark | light | system
+  const [theme, setThemeState] = useState<ThemeMode>(() => {
+    try {
+      const saved = localStorage.getItem('acuity_theme');
+      if (saved === 'light' || saved === 'dark' || saved === 'system') {
+        return saved as ThemeMode;
+      }
+    } catch {
+      // ignore
+    }
+    return 'dark';
   });
 
+  const [systemIsDark, setSystemIsDark] = useState<boolean>(() => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return true;
+  });
+
+  // Listen to OS system color-scheme changes
   useEffect(() => {
-    localStorage.setItem('acuity_theme', theme);
-    if (theme === 'dark') {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) => {
+      setSystemIsDark(e.matches);
+    };
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  const effectiveTheme: 'dark' | 'light' = useMemo(() => {
+    if (theme === 'system') {
+      return systemIsDark ? 'dark' : 'light';
+    }
+    return theme;
+  }, [theme, systemIsDark]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('acuity_theme', theme);
+    } catch {
+      // ignore
+    }
+
+    if (effectiveTheme === 'dark') {
       document.documentElement.classList.add('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.style.colorScheme = 'dark';
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.style.colorScheme = 'light';
     }
-  }, [theme]);
+  }, [theme, effectiveTheme]);
+
+  const setTheme = (mode: ThemeMode) => {
+    setThemeState(mode);
+  };
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+    setThemeState(prev => {
+      if (prev === 'light') return 'dark';
+      if (prev === 'dark') return 'system';
+      return 'light';
+    });
   };
 
   // Set individual column filter (backward-compatible)
@@ -802,6 +855,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         refreshData,
         uploadDataset,
         theme,
+        effectiveTheme,
+        setTheme,
         toggleTheme
       }}
     >

@@ -13,6 +13,7 @@ import {
   RotateCcw, 
   Sun, 
   Moon, 
+  Monitor,
   X,
   ChevronRight,
   Command,
@@ -43,6 +44,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     loadSampleDataset, 
     toggleTheme, 
     theme, 
+    effectiveTheme,
+    setTheme,
     refreshData 
   } = useData();
 
@@ -160,14 +163,30 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       perform: () => { refreshData(); onClose(); }
     },
     {
-      id: 'view-theme',
+      id: 'theme-light',
       category: 'View',
-      title: theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode',
-      subtitle: 'Toggle interface color theme appearance',
-      icon: theme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-slate-400" />,
-      perform: () => { toggleTheme(); onClose(); }
+      title: 'Switch to Light Mode',
+      subtitle: 'Daylight high-contrast crisp white background',
+      icon: <Sun className="h-4 w-4 text-amber-500" />,
+      perform: () => { setTheme('light'); onClose(); }
+    },
+    {
+      id: 'theme-dark',
+      category: 'View',
+      title: 'Switch to Dark Mode',
+      subtitle: 'Executive low-glare dark slate background',
+      icon: <Moon className="h-4 w-4 text-indigo-400" />,
+      perform: () => { setTheme('dark'); onClose(); }
+    },
+    {
+      id: 'theme-system',
+      category: 'View',
+      title: 'Switch to System Mode',
+      subtitle: `Automatically match OS display theme (currently ${effectiveTheme})`,
+      icon: <Monitor className="h-4 w-4 text-sky-500" />,
+      perform: () => { setTheme('system'); onClose(); }
     }
-  ], [navigate, onClose, clearFilters, activeFilterCount, loadSampleDataset, toggleTheme, theme, refreshData]);
+  ], [navigate, onClose, clearFilters, activeFilterCount, loadSampleDataset, toggleTheme, theme, effectiveTheme, setTheme, refreshData]);
 
   // Filter commands based on user query
   const filteredCommands = useMemo(() => {

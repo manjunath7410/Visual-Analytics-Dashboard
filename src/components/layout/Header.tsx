@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Menu, 
   RotateCw, 
   Sun, 
   Moon, 
+  Monitor,
   Search, 
   Command, 
   Database,
@@ -36,11 +37,36 @@ export const Header: React.FC<HeaderProps> = ({
     searchQuery,
     setSearchQuery,
     theme,
+    effectiveTheme,
+    setTheme,
     toggleTheme
   } = useData();
 
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(e.target as Node)) {
+        setThemeMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setThemeMenuOpen(false);
+      }
+    };
+    if (themeMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [themeMenuOpen]);
 
   const timeRanges: { id: TimeRange; label: string }[] = [
     { id: '7d', label: '7D' },
@@ -210,19 +236,86 @@ export const Header: React.FC<HeaderProps> = ({
           <RotateCw className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${isRefreshing ? 'animate-spin text-indigo-500' : ''}`} />
         </button>
 
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="flex h-9 w-9 sm:h-8 sm:w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 focus-visible:outline-hidden dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-850 dark:hover:text-slate-200 transition-colors cursor-pointer shrink-0"
-          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          aria-label="Toggle Color Theme"
-        >
-          {theme === 'dark' ? (
-            <Sun className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-amber-400" />
-          ) : (
-            <Moon className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-slate-600" />
+        {/* Theme Selector Dropdown */}
+        <div className="relative shrink-0" ref={themeMenuRef}>
+          <button
+            onClick={() => setThemeMenuOpen(prev => !prev)}
+            className="flex h-9 w-9 sm:h-8 sm:w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 focus-visible:outline-hidden dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-850 dark:hover:text-slate-200 transition-colors cursor-pointer shrink-0"
+            title={`Current theme: ${theme} (${effectiveTheme}). Click to switch Light, Dark, or System mode`}
+            aria-label="Select Color Theme"
+            aria-expanded={themeMenuOpen}
+            aria-haspopup="true"
+          >
+            {theme === 'dark' ? (
+              <Moon className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-indigo-500 dark:text-indigo-400" />
+            ) : theme === 'light' ? (
+              <Sun className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-amber-500" />
+            ) : (
+              <Monitor className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-sky-500" />
+            )}
+          </button>
+
+          {themeMenuOpen && (
+            <div className="absolute right-0 top-full mt-1.5 w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-800 dark:bg-slate-900 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                Appearance
+              </div>
+              
+              <button
+                type="button"
+                onClick={() => { setTheme('light'); setThemeMenuOpen(false); }}
+                className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                  theme === 'light'
+                    ? 'bg-amber-50 text-amber-900 font-semibold dark:bg-amber-950/40 dark:text-amber-300'
+                    : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Sun className="h-4 w-4 text-amber-500" />
+                  <span>Light Mode</span>
+                </div>
+                {theme === 'light' && <Check className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setTheme('dark'); setThemeMenuOpen(false); }}
+                className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                  theme === 'dark'
+                    ? 'bg-indigo-50 text-indigo-900 font-semibold dark:bg-indigo-950/60 dark:text-indigo-300'
+                    : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Moon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                  <span>Dark Mode</span>
+                </div>
+                {theme === 'dark' && <Check className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setTheme('system'); setThemeMenuOpen(false); }}
+                className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                  theme === 'system'
+                    ? 'bg-sky-50 text-sky-900 font-semibold dark:bg-sky-950/40 dark:text-sky-300'
+                    : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Monitor className="h-4 w-4 text-sky-500" />
+                  <div className="flex flex-col text-left">
+                    <span>System Mode</span>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">
+                      Auto ({effectiveTheme})
+                    </span>
+                  </div>
+                </div>
+                {theme === 'system' && <Check className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />}
+              </button>
+            </div>
           )}
-        </button>
+        </div>
         {/* User Identity Avatar */}
         <div className="flex items-center gap-2 pl-1 border-l border-slate-200 dark:border-slate-800 shrink-0">
           <div

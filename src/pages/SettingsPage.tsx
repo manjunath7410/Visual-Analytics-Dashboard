@@ -3,6 +3,7 @@ import {
   Sliders, 
   Moon, 
   Sun, 
+  Monitor,
   Bell, 
   ShieldCheck, 
   Database, 
@@ -14,7 +15,7 @@ import { PageContainer } from '../components/common/PageContainer';
 import { useData } from '../context/DataContext';
 
 export const SettingsPage: React.FC = () => {
-  const { theme, toggleTheme } = useData();
+  const { theme, effectiveTheme, setTheme } = useData();
 
   const [currency, setCurrency] = useState('USD');
   const [dateFormat, setDateFormat] = useState('YYYY-MM-DD');
@@ -61,40 +62,103 @@ export const SettingsPage: React.FC = () => {
       <form onSubmit={handleSave} className="space-y-6 max-w-4xl">
         {/* Appearance Settings */}
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800/80 dark:bg-slate-900/80">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 dark:border-slate-800 gap-2">
             <div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                Visual Canvas & Theme
+                Visual Canvas & Theme Appearance
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Executive high-contrast dark slate or clean daylight mode.
+                Choose between Light mode, Dark mode, or automatic System synchronization.
               </p>
             </div>
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300 w-fit">
+              Active: {theme === 'system' ? `System (${effectiveTheme})` : theme === 'dark' ? 'Dark' : 'Light'}
+            </span>
           </div>
 
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {theme === 'dark' ? (
-                <Moon className="h-5 w-5 text-indigo-400" />
-              ) : (
-                <Sun className="h-5 w-5 text-amber-500" />
-              )}
-              <div>
-                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                  Active Mode: {theme === 'dark' ? 'Executive Slate (Dark)' : 'Daylight Contrast (Light)'}
-                </span>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Synchronizes with system preferences and persists in your local session.
-                </p>
-              </div>
-            </div>
-
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {/* Light Mode Card */}
             <button
               type="button"
-              onClick={toggleTheme}
-              className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
+              onClick={() => setTheme('light')}
+              className={`flex flex-col items-start rounded-xl border p-4 text-left transition-all cursor-pointer ${
+                theme === 'light'
+                  ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/20 ring-2 ring-amber-500/20'
+                  : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60 dark:border-slate-800 dark:bg-slate-850/50 dark:hover:bg-slate-800/60'
+              }`}
             >
-              Toggle to {theme === 'dark' ? 'Light' : 'Dark'}
+              <div className="flex w-full items-center justify-between">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400">
+                  <Sun className="h-5 w-5" />
+                </div>
+                {theme === 'light' && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-white">
+                    <Check className="h-3 w-3 stroke-[3]" />
+                  </span>
+                )}
+              </div>
+              <span className="mt-3 text-xs font-bold text-slate-900 dark:text-slate-100">
+                Light Mode
+              </span>
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                Daylight contrast with crisp, high-visibility white canvas.
+              </p>
+            </button>
+
+            {/* Dark Mode Card */}
+            <button
+              type="button"
+              onClick={() => setTheme('dark')}
+              className={`flex flex-col items-start rounded-xl border p-4 text-left transition-all cursor-pointer ${
+                theme === 'dark'
+                  ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20 ring-2 ring-indigo-500/20'
+                  : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60 dark:border-slate-800 dark:bg-slate-850/50 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <div className="flex w-full items-center justify-between">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400">
+                  <Moon className="h-5 w-5" />
+                </div>
+                {theme === 'dark' && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white">
+                    <Check className="h-3 w-3 stroke-[3]" />
+                  </span>
+                )}
+              </div>
+              <span className="mt-3 text-xs font-bold text-slate-900 dark:text-slate-100">
+                Dark Mode
+              </span>
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                Executive dark slate optimized for reduced glare in dim settings.
+              </p>
+            </button>
+
+            {/* System Mode Card */}
+            <button
+              type="button"
+              onClick={() => setTheme('system')}
+              className={`flex flex-col items-start rounded-xl border p-4 text-left transition-all cursor-pointer ${
+                theme === 'system'
+                  ? 'border-sky-500 bg-sky-50/50 dark:bg-sky-950/20 ring-2 ring-sky-500/20'
+                  : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60 dark:border-slate-800 dark:bg-slate-850/50 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <div className="flex w-full items-center justify-between">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400">
+                  <Monitor className="h-5 w-5" />
+                </div>
+                {theme === 'system' && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-sky-500 text-white">
+                    <Check className="h-3 w-3 stroke-[3]" />
+                  </span>
+                )}
+              </div>
+              <span className="mt-3 text-xs font-bold text-slate-900 dark:text-slate-100">
+                System Mode
+              </span>
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                Follows your device OS preferences (currently {effectiveTheme}).
+              </p>
             </button>
           </div>
         </div>
