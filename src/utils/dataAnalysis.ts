@@ -53,13 +53,29 @@ export function analyzeDataset(
   columns: ColumnMetadata[];
   statistics: DatasetStatistics;
 } {
+  // Deduplicate and sanitize headers
+  const uniqueHeaders: string[] = [];
+  const seenHeaderSet = new Set<string>();
+  headers.forEach((h, idx) => {
+    let name = (h || `Column_${idx + 1}`).trim();
+    if (seenHeaderSet.has(name)) {
+      let count = 1;
+      while (seenHeaderSet.has(`${name}_${count}`)) {
+        count++;
+      }
+      name = `${name}_${count}`;
+    }
+    seenHeaderSet.add(name);
+    uniqueHeaders.push(name);
+  });
+
   const rowCount = rawRows.length;
-  const columnCount = headers.length;
+  const columnCount = uniqueHeaders.length;
 
   if (rowCount === 0) {
     return {
       typedRows: [],
-      columns: headers.map(h => ({
+      columns: uniqueHeaders.map(h => ({
         name: h,
         type: 'Text',
         nonEmptyCount: 0,
@@ -85,7 +101,7 @@ export function analyzeDataset(
   for (let i = 0; i < rowCount; i++) {
     const row = rawRows[i];
     // Hash key from column values
-    const signature = headers.map(h => String(row[h] ?? '')).join('|');
+    const signature = uniqueHeaders.map(h => String(row[h] ?? '')).join('|');
     if (rowSignatures.has(signature)) {
       duplicateRowsCount++;
     } else {
@@ -103,7 +119,7 @@ export function analyzeDataset(
   const columnAnalysis: ColumnMetadata[] = [];
   const columnTypes: Record<string, ColumnDataType> = {};
 
-  headers.forEach((header) => {
+  uniqueHeaders.forEach((header) => {
     let missingInCol = 0;
     let numericCandidates = 0;
     let dateCandidates = 0;

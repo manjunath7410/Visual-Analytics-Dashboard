@@ -26,7 +26,7 @@ export const BottomNav: React.FC = () => {
   return (
     <nav 
       aria-label="Mobile Navigation Bar"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex h-14 items-stretch border-t border-slate-200/90 bg-white/95 px-2 backdrop-blur-md dark:border-slate-800/90 dark:bg-slate-950/95"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex h-14 items-stretch border-t border-slate-200/90 bg-white/95 px-2 backdrop-blur-md dark:border-[#263247] dark:bg-[#0B1020]/95"
     >
       <div className="flex w-full items-center justify-around">
         {navItems.map((item) => {
@@ -39,7 +39,7 @@ export const BottomNav: React.FC = () => {
                 flex flex-1 flex-col items-center justify-center py-1 min-h-[44px] transition-colors
                 ${isActive 
                   ? 'text-indigo-600 dark:text-indigo-400 font-semibold' 
-                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                  : 'text-slate-500 hover:text-slate-900 dark:text-[#94A3B8] dark:hover:text-[#F8FAFC]'
                 }
               `}
             >

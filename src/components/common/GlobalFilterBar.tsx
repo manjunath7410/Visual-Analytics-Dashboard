@@ -81,32 +81,38 @@ export const GlobalFilterBar: React.FC<GlobalFilterBarProps> = ({
   }, [classifications]);
 
   const categoricalColumns = useMemo(() => {
-    return classifications
+    const rawCols = classifications
       .filter(c => c.isDimension && c.role !== 'Identifier' && c.name !== dateColumn)
       .map(c => c.name);
+    return Array.from(new Set(rawCols));
   }, [classifications, dateColumn]);
 
   const numericColumns = useMemo(() => {
-    return classifications
+    const rawCols = classifications
       .filter(c => c.isNumeric)
       .map(c => c.name);
+    return Array.from(new Set(rawCols));
   }, [classifications]);
 
-  // Primary top 3 categorical columns shown directly in the bar
+  // Primary top 3 categorical columns shown directly in the bar (deduplicated)
   const primaryDims = useMemo(() => {
     const found = AnalyticsEngine.findPrimaryDimensions(classifications);
-    const primary = [found.regionColumn, found.categoryColumn, found.segmentColumn].filter(Boolean) as string[];
+    const set = new Set<string>();
+    [found.regionColumn, found.categoryColumn, found.segmentColumn].forEach(col => {
+      if (col && typeof col === 'string') set.add(col);
+    });
     // Fill up to 3 columns from available categoricalColumns
     for (const c of categoricalColumns) {
-      if (primary.length >= 3) break;
-      if (!primary.includes(c)) primary.push(c);
+      if (set.size >= 3) break;
+      set.add(c);
     }
-    return primary;
+    return Array.from(set);
   }, [classifications, categoricalColumns]);
 
-  // Secondary categorical columns accessed through "More Filters"
+  // Secondary categorical columns accessed through "More Filters" (strictly distinct from primary)
   const secondaryDims = useMemo(() => {
-    return categoricalColumns.filter(c => !primaryDims.includes(c));
+    const primarySet = new Set(primaryDims);
+    return categoricalColumns.filter(c => !primarySet.has(c));
   }, [categoricalColumns, primaryDims]);
 
   // Date boundaries

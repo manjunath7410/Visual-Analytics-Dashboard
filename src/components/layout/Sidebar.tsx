@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -10,10 +10,13 @@ import {
   FileText, 
   Settings, 
   ChevronLeft, 
-  ChevronRight,
+  ChevronRight, 
   X,
-  Activity,
-  Layers
+  Layers,
+  ChevronDown,
+  Clock,
+  CheckCircle2,
+  HardDrive
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { Tooltip } from '../ui/Tooltip';
@@ -36,15 +39,36 @@ interface SidebarProps {
   onCloseMobile: () => void;
 }
 
+/**
+ * Refined Acuity BI Logo with abstract analytics waveform / intelligence symbol
+ */
+const AcuityLogoSymbol: React.FC<{ className?: string }> = ({ className = 'h-8 w-8' }) => (
+  <div className={`relative flex items-center justify-center rounded-lg bg-[#151D2F] border border-indigo-500/40 shadow-xs overflow-hidden shrink-0 ${className}`}>
+    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-transparent to-cyan-500/20" />
+    <svg className="h-5 w-5 relative z-10" viewBox="0 0 24 24" fill="none">
+      {/* Waveform Bars */}
+      <rect x="3.5" y="11" width="2.2" height="7" rx="1.1" fill="#6366F1" fillOpacity="0.8" />
+      <rect x="8" y="6" width="2.2" height="12" rx="1.1" fill="#6366F1" />
+      <rect x="12.5" y="9" width="2.2" height="9" rx="1.1" fill="#06B6D4" />
+      <rect x="17" y="4" width="2.2" height="14" rx="1.1" fill="#6366F1" />
+      {/* Intelligence Trajectory & Spark */}
+      <path d="M4.5 13.5L9 8.5L13.5 11.5L18 5" stroke="#F8FAFC" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="18" cy="5" r="1.6" fill="#06B6D4" />
+    </svg>
+  </div>
+);
+
 export const Sidebar: React.FC<SidebarProps> = ({
   collapsed,
   onToggleCollapse,
   mobileOpen,
   onCloseMobile
 }) => {
-  const { dataset, currentDataset, filteredRows } = useData();
+  const { dataset, currentDataset, datasets, setCurrentDatasetId, filteredRows } = useData();
   const activeDatasetName = dataset ? dataset.name : currentDataset.name;
-  const activeSource = dataset ? (dataset.isSample ? 'Benchmark Data' : 'Custom CSV') : currentDataset.source;
+
+  // Toggle for recent datasets collapsible under REPORTING
+  const [showRecentDatasets, setShowRecentDatasets] = useState(true);
 
   // Close on Escape key
   useEffect(() => {
@@ -57,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [mobileOpen, onCloseMobile]);
 
-  // Grouped Navigation structure
+  // Refined Grouped Navigation sections based on Enterprise Architecture
   const navigationGroups: NavGroup[] = [
     {
       groupName: 'WORKSPACE',
@@ -79,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       groupName: 'DATA PLATFORM',
       items: [
-        { name: 'Data Warehouse', to: '/warehouse', icon: Database },
+        { name: 'Data Warehouse', to: '/warehouse', icon: HardDrive },
       ]
     },
     {
@@ -87,19 +111,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { name: 'Reports & Export', to: '/reports', icon: FileText },
       ]
-    },
-    {
-      groupName: 'SYSTEM',
-      items: [
-        { name: 'Settings', to: '/settings', icon: Settings },
-      ]
     }
   ];
 
   const renderNavGroup = (group: NavGroup) => (
-    <div key={group.groupName} className="mb-4">
+    <div key={group.groupName} className="mb-3">
       {!collapsed && (
-        <div className="px-3 pb-1.5 pt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 select-none">
+        <div className="px-3 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-wider text-[#64748B] select-none">
           {group.groupName}
         </div>
       )}
@@ -113,21 +131,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
               to={item.to}
               onClick={onCloseMobile}
               className={({ isActive }) => `
-                group relative flex items-center gap-3 rounded-lg px-3 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-medium transition-all duration-150 select-none
+                group relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 min-h-[34px] text-xs font-medium transition-all duration-150 select-none
                 ${isActive
-                  ? 'bg-indigo-50/90 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 font-semibold shadow-2xs'
-                  : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-850 dark:hover:text-slate-200'
+                  ? 'bg-indigo-600/15 text-indigo-300 font-semibold shadow-2xs'
+                  : 'text-[#94A3B8] hover:bg-[#151D2F] hover:text-[#F8FAFC]'
                 }
-                ${collapsed ? 'justify-center px-2' : ''}
+                ${collapsed ? 'justify-center px-1.5' : ''}
               `}
             >
               {({ isActive }) => (
                 <>
                   <Icon
-                    className={`h-4 w-4 shrink-0 transition-transform duration-150 ${
+                    className={`h-4 w-4 shrink-0 stroke-[1.8] transition-colors duration-150 ${
                       isActive
-                        ? 'text-indigo-600 dark:text-indigo-400 stroke-[2.2]'
-                        : 'text-slate-400 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'
+                        ? 'text-indigo-400'
+                        : 'text-[#64748B] group-hover:text-[#94A3B8]'
                     }`}
                   />
                   {!collapsed && (
@@ -136,7 +154,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {isActive && (
                     <div
                       aria-hidden="true"
-                      className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r bg-indigo-600 dark:bg-indigo-400"
+                      className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-r bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"
                     />
                   )}
                 </>
@@ -154,30 +172,69 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           return navLink;
         })}
+
+        {/* Collapsible Recent Datasets under REPORTING section */}
+        {group.groupName === 'REPORTING' && !collapsed && (
+          <div className="pt-1.5 pl-2">
+            <button
+              onClick={() => setShowRecentDatasets(!showRecentDatasets)}
+              className="flex w-full items-center justify-between px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#64748B] hover:text-[#94A3B8] transition-colors"
+            >
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-3 w-3" />
+                Recent Datasets
+              </span>
+              <ChevronDown className={`h-3 w-3 transition-transform ${showRecentDatasets ? 'rotate-0' : '-rotate-90'}`} />
+            </button>
+            
+            {showRecentDatasets && (
+              <div className="mt-1 space-y-0.5 pl-1 border-l border-[#263247]">
+                {datasets.slice(0, 3).map((d) => (
+                  <button
+                    key={d.id}
+                    onClick={() => {
+                      setCurrentDatasetId(d.id);
+                      onCloseMobile();
+                    }}
+                    className={`flex w-full items-center justify-between rounded px-2 py-1 text-[11px] transition-colors text-left truncate ${
+                      currentDataset.id === d.id
+                        ? 'text-indigo-400 font-medium bg-indigo-500/10'
+                        : 'text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[#151D2F]'
+                    }`}
+                    title={d.name}
+                  >
+                    <span className="truncate max-w-[150px]">{d.name}</span>
+                    {currentDataset.id === d.id && (
+                      <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 
   const sidebarContent = (
-    <div className="flex h-full flex-col justify-between overflow-hidden">
+    <div className="flex h-full flex-col justify-between overflow-hidden bg-[#0B1020] text-[#F8FAFC]">
       {/* Top Identity Header */}
       <div>
-        <div className="flex h-16 items-center justify-between border-b border-slate-200/80 px-4 dark:border-slate-800/80">
+        <div className="flex h-16 items-center justify-between border-b border-[#263247] px-3.5">
           <NavLink 
             to="/" 
-            className="flex items-center gap-2.5 overflow-hidden text-slate-900 dark:text-slate-50 transition-transform active:scale-95"
+            className="flex items-center gap-2.5 overflow-hidden text-[#F8FAFC] transition-transform active:scale-95"
             onClick={onCloseMobile}
-            title="Acuity BI Workspace"
+            title="Acuity BI Enterprise Analytics"
           >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-2xs">
-              <Activity className="h-4 w-4" />
-            </div>
+            <AcuityLogoSymbol />
             {!collapsed && (
               <div className="flex flex-col truncate">
-                <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+                <span className="text-sm font-bold tracking-tight text-[#F8FAFC] leading-tight">
                   Acuity BI
                 </span>
-                <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 leading-tight">
+                <span className="text-[10px] font-medium text-[#94A3B8] leading-tight">
                   Enterprise Analytics
                 </span>
               </div>
@@ -187,7 +244,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Desktop collapse button */}
           <button
             onClick={onToggleCollapse}
-            className="hidden lg:flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
+            className="hidden lg:flex h-7 w-7 items-center justify-center rounded-md border border-[#263247] bg-[#151D2F] text-[#94A3B8] hover:bg-[#1B263B] hover:text-[#F8FAFC] hover:border-slate-600 transition-colors cursor-pointer"
             title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             aria-label="Toggle Sidebar Navigation"
           >
@@ -197,7 +254,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Mobile close button */}
           <button
             onClick={onCloseMobile}
-            className="flex lg:hidden h-10 w-10 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="flex lg:hidden h-9 w-9 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-[#151D2F] transition-colors cursor-pointer"
             aria-label="Close mobile menu"
           >
             <X className="h-5 w-5" />
@@ -207,29 +264,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Scrollable Navigation Groups */}
         <nav
           aria-label="Primary Navigation"
-          className="overflow-y-auto max-h-[calc(100vh-140px)] p-3"
+          className="overflow-y-auto max-h-[calc(100vh-140px)] p-2.5"
         >
           {navigationGroups.map(renderNavGroup)}
         </nav>
       </div>
 
       {/* Sidebar Footer Metadata */}
-      <div className="border-t border-slate-200/80 p-3 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-950/40">
+      <div className="border-t border-[#263247] p-2.5 bg-[#0B1020]">
         {!collapsed ? (
-          <div className="rounded-lg bg-white p-2.5 shadow-2xs border border-slate-200/60 dark:bg-slate-900/60 dark:border-slate-800/60">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-800 dark:text-slate-200 truncate">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+          <div className="rounded-lg bg-[#151D2F] p-2.5 border border-[#263247] shadow-xs">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#F8FAFC] truncate">
+              <span className="h-2 w-2 rounded-full bg-[#10B981] shrink-0 animate-pulse" />
               <span className="truncate">{activeDatasetName}</span>
             </div>
-            <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500">
+            <div className="mt-1 flex items-center justify-between text-[10px] text-[#94A3B8]">
               <span className="font-mono tabular-nums">{filteredRows.length.toLocaleString()} rows</span>
-              <span className="font-mono">v1.2.0</span>
+              <span className="font-mono text-[#64748B]">Active Hub</span>
             </div>
           </div>
         ) : (
           <Tooltip content={`${activeDatasetName} (${filteredRows.length.toLocaleString()} rows)`} position="right">
             <div className="flex justify-center p-1">
-              <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              <div className="h-2.5 w-2.5 rounded-full bg-[#10B981]" />
             </div>
           </Tooltip>
         )}
@@ -241,8 +298,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <>
       {/* Desktop Sidebar with smooth transition */}
       <aside
-        className={`hidden lg:block shrink-0 border-r border-slate-200/80 bg-white transition-all duration-200 ease-in-out dark:border-slate-800/80 dark:bg-slate-950 ${
-          collapsed ? 'w-[68px]' : 'w-64'
+        className={`hidden lg:block shrink-0 border-r border-[#263247] bg-[#0B1020] transition-all duration-200 ease-in-out ${
+          collapsed ? 'w-[64px]' : 'w-60'
         }`}
       >
         {sidebarContent}
@@ -251,7 +308,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Drawer Backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs lg:hidden transition-opacity duration-200"
+          className="fixed inset-0 z-40 bg-[#0B1020]/80 backdrop-blur-xs lg:hidden transition-opacity duration-200"
           onClick={onCloseMobile}
           aria-hidden="true"
         />
@@ -259,7 +316,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Mobile Drawer */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl transition-transform duration-200 ease-in-out lg:hidden dark:bg-slate-950 ${
+        className={`fixed inset-y-0 left-0 z-50 w-60 bg-[#0B1020] border-r border-[#263247] shadow-2xl transition-transform duration-200 ease-in-out lg:hidden ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

@@ -73,10 +73,17 @@ export function classifyColumns(
  */
 export function findPrimarySalesColumn(classifications: ColumnClassification[]): string | undefined {
   const candidates = classifications.filter(c => c.isNumeric);
-  // Match priority names
-  const preferred = ['sales', 'revenue', 'gross_revenue', 'total_revenue', 'amount', 'turnover'];
+  // Match priority names based on common business variations
+  const preferred = [
+    'sales', 'sales_amount', 'revenue', 'total_sales', 'net_sales', 'amount',
+    'gross_revenue', 'total_revenue', 'gross_sales', 'turnover', 'line_total',
+    'total_amount', 'transaction_amount', 'invoice_amount', 'order_value', 'value', 'price'
+  ];
   for (const p of preferred) {
-    const match = candidates.find(c => c.name.toLowerCase() === p || c.name.toLowerCase().includes(p));
+    const match = candidates.find(c => {
+      const lower = c.name.toLowerCase().replace(/[\s\-_.]+/g, '_');
+      return lower === p || lower.includes(p);
+    });
     if (match) return match.name;
   }
   return candidates[0]?.name;
@@ -87,9 +94,15 @@ export function findPrimarySalesColumn(classifications: ColumnClassification[]):
  */
 export function findPrimaryProfitColumn(classifications: ColumnClassification[]): string | undefined {
   const candidates = classifications.filter(c => c.isNumeric);
-  const preferred = ['profit', 'gross_profit', 'net_profit', 'margin_amount', 'earnings'];
+  const preferred = [
+    'profit', 'gross_profit', 'net_profit', 'profit_amount', 'margin_amount',
+    'operating_profit', 'earnings', 'net_income', 'gain'
+  ];
   for (const p of preferred) {
-    const match = candidates.find(c => c.name.toLowerCase() === p || c.name.toLowerCase().includes(p));
+    const match = candidates.find(c => {
+      const lower = c.name.toLowerCase().replace(/[\s\-_.]+/g, '_');
+      return lower === p || lower.includes(p);
+    });
     if (match) return match.name;
   }
   return undefined;
@@ -100,9 +113,15 @@ export function findPrimaryProfitColumn(classifications: ColumnClassification[])
  */
 export function findPrimaryDateColumn(classifications: ColumnClassification[]): string | undefined {
   const candidates = classifications.filter(c => c.isDate);
-  const preferred = ['order date', 'order_date', 'transaction date', 'date', 'invoice date', 'timestamp'];
+  const preferred = [
+    'order_date', 'transaction_date', 'sales_date', 'invoice_date', 'date',
+    'event_date', 'timestamp', 'created_at', 'purchase_date', 'period_date', 'ship_date'
+  ];
   for (const p of preferred) {
-    const match = candidates.find(c => c.name.toLowerCase() === p || c.name.toLowerCase().includes(p));
+    const match = candidates.find(c => {
+      const lower = c.name.toLowerCase().replace(/[\s\-_.]+/g, '_');
+      return lower === p || lower.includes(p);
+    });
     if (match) return match.name;
   }
   return candidates[0]?.name;
@@ -120,11 +139,30 @@ export function findPrimaryDimensions(classifications: ColumnClassification[]): 
 } {
   const dims = classifications.filter(c => c.isDimension && c.role !== 'Identifier');
 
-  const regionMatch = dims.find(c => c.name.toLowerCase().includes('region') || c.name.toLowerCase().includes('geography') || c.name.toLowerCase().includes('country') || c.name.toLowerCase().includes('theater'));
-  const categoryMatch = dims.find(c => c.name.toLowerCase().includes('category') || c.name.toLowerCase().includes('department') || c.name.toLowerCase().includes('line') || c.name.toLowerCase().includes('family'));
-  const productMatch = dims.find(c => c.name.toLowerCase().includes('product') || c.name.toLowerCase().includes('item') || c.name.toLowerCase().includes('sku') || c.name.toLowerCase().includes('service'));
-  const segmentMatch = dims.find(c => c.name.toLowerCase().includes('segment') || c.name.toLowerCase().includes('tier') || c.name.toLowerCase().includes('cohort') || c.name.toLowerCase().includes('customer type'));
-  const customerMatch = dims.find(c => c.name.toLowerCase().includes('customer') || c.name.toLowerCase().includes('client') || c.name.toLowerCase().includes('account') || c.name.toLowerCase().includes('buyer'));
+  const regionMatch = dims.find(c => {
+    const l = c.name.toLowerCase();
+    return l.includes('country') || l.includes('state') || l.includes('city') || l.includes('region') || l.includes('territory') || l.includes('location') || l.includes('geography') || l.includes('theater');
+  });
+
+  const categoryMatch = dims.find(c => {
+    const l = c.name.toLowerCase();
+    return l.includes('category') || l.includes('product_category') || l.includes('segment') || l.includes('department') || l.includes('line') || l.includes('family');
+  });
+
+  const productMatch = dims.find(c => {
+    const l = c.name.toLowerCase();
+    return l.includes('product') || l.includes('product_id') || l.includes('product_name') || l.includes('item') || l.includes('item_name') || l.includes('sku') || l.includes('service');
+  });
+
+  const segmentMatch = dims.find(c => {
+    const l = c.name.toLowerCase();
+    return l.includes('segment') || l.includes('tier') || l.includes('cohort') || l.includes('customer_type') || l.includes('account_tier');
+  });
+
+  const customerMatch = dims.find(c => {
+    const l = c.name.toLowerCase();
+    return l.includes('customer') || l.includes('customer_id') || l.includes('customer_name') || l.includes('client') || l.includes('client_id') || l.includes('account') || l.includes('buyer');
+  });
 
   return {
     regionColumn: regionMatch?.name,

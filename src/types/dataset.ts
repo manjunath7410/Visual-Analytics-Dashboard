@@ -60,10 +60,14 @@ export interface Dataset {
   name: string;
   fileName?: string;
   fileSize?: number;
+  fileType?: 'csv' | 'xlsx' | 'xls' | 'json' | 'tsv';
+  sheetNames?: string[];
+  activeSheet?: string;
   uploadDate: string;
   isSample?: boolean;
   rows: Record<string, any>[];
   columns: ColumnMetadata[];
   statistics: DatasetStatistics;
   rawHeaders: string[];
+  normalizedModel?: any;
 }

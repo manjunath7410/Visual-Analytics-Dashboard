@@ -27,9 +27,9 @@ export const DataUploadPage: React.FC = () => {
       ]}
       metadata={
         <>
-          <span className="font-semibold text-slate-700 dark:text-slate-300">Parser: RFC 4180 Streaming PapaParse</span>
+          <span className="font-semibold text-slate-700 dark:text-slate-300">Parser: Multi-Format Engine (CSV, Excel, JSON, TSV)</span>
           <span>·</span>
-          <span>In-Memory Analytical Storage</span>
+          <span>Client-Side In-Memory Analytical Storage</span>
         </>
       }
       actions={

@@ -26,6 +26,24 @@ export const ProductRankingSection: React.FC<ProductRankingSectionProps> = ({
   onSelectProduct,
   className = ''
 }) => {
+  if (!products || products.length === 0) {
+    return (
+      <div className={`rounded-xl border border-slate-200/80 bg-white p-5 shadow-2xs dark:border-slate-800/90 dark:bg-slate-900/90 ${className}`}>
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
+          <ShoppingBag className="h-4 w-4 text-emerald-500" />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+            Product Performance Rankings
+          </h3>
+        </div>
+        <div className="py-8 text-center">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Product analysis unavailable because this dataset does not contain an item, product, or SKU field.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`rounded-xl border border-slate-200/80 bg-white p-5 shadow-2xs dark:border-slate-800/90 dark:bg-slate-900/90 ${className}`}>
       {/* Controls Bar */}
@@ -115,7 +133,7 @@ export const ProductRankingSection: React.FC<ProductRankingSectionProps> = ({
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
             {products.map((item, idx) => (
               <tr
-                key={item.product}
+                key={`prod-${item.product || 'item'}-${idx}`}
                 onClick={() => onSelectProduct?.(item.product)}
                 className={`group transition-colors ${
                   onSelectProduct ? 'cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-850/40' : ''

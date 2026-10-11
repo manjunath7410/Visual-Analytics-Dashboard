@@ -18,6 +18,24 @@ export const RegionalPerformanceSection: React.FC<RegionalPerformanceSectionProp
 }) => {
   const [sortBy, setSortBy] = useState<'sales' | 'profit' | 'orders' | 'growth' | 'score'>('sales');
 
+  if (!regions || regions.length === 0) {
+    return (
+      <div className={`rounded-xl border border-slate-200/80 bg-white p-5 shadow-2xs dark:border-slate-800/90 dark:bg-slate-900/90 ${className}`}>
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
+          <Globe className="h-4 w-4 text-indigo-500" />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+            Regional Performance & Leaderboard
+          </h3>
+        </div>
+        <div className="py-8 text-center">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Geographic analysis unavailable because this dataset does not contain a country, state, region, or location field.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const sortedRegions = [...regions].sort((a, b) => {
     if (sortBy === 'profit') return b.profit - a.profit;
     if (sortBy === 'orders') return b.orders - a.orders;
@@ -103,7 +121,7 @@ export const RegionalPerformanceSection: React.FC<RegionalPerformanceSectionProp
 
               return (
                 <tr
-                  key={item.region}
+                  key={`region-${item.region || 'item'}-${idx}`}
                   onClick={() => onSelectRegion?.(item.region)}
                   className={`group transition-colors ${
                     onSelectRegion ? 'cursor-pointer hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20' : ''

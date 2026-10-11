@@ -43,7 +43,13 @@ export const AppLayout: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
+    <div className="relative flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 transition-colors dark:bg-[#0B1020] dark:text-[#F8FAFC]">
+      {/* Subtle enterprise ambient radial glow */}
+      <div 
+        aria-hidden="true" 
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_80%_45%_at_50%_-10%,rgba(99,102,241,0.05),transparent)] dark:bg-[radial-gradient(ellipse_80%_45%_at_50%_-10%,rgba(99,102,241,0.07),rgba(11,16,32,0))]" 
+      />
+
       {/* Sidebar Navigation */}
       <Sidebar
         collapsed={collapsed}
@@ -53,7 +59,7 @@ export const AppLayout: React.FC = () => {
       />
 
       {/* Main Workspace Viewport */}
-      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+      <div className="relative z-10 flex flex-1 flex-col overflow-hidden min-w-0">
         <Header
           onToggleMobileMenu={() => setMobileOpen(true)}
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}

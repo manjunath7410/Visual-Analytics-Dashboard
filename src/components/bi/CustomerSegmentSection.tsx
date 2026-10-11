@@ -16,6 +16,24 @@ export const CustomerSegmentSection: React.FC<CustomerSegmentSectionProps> = ({
   onSelectSegment,
   className = ''
 }) => {
+  if (!segments || segments.length === 0) {
+    return (
+      <div className={`rounded-xl border border-slate-200/80 bg-white p-5 shadow-2xs dark:border-slate-800/90 dark:bg-slate-900/90 ${className}`}>
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
+          <Building2 className="h-4 w-4 text-purple-500" />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+            Customer Segment Portfolio & Realization
+          </h3>
+        </div>
+        <div className="py-8 text-center">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Customer segment analysis unavailable because this dataset does not contain customer or segment attributes.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`rounded-xl border border-slate-200/80 bg-white p-5 shadow-2xs dark:border-slate-800/90 dark:bg-slate-900/90 ${className}`}>
       {/* Header */}
@@ -34,12 +52,12 @@ export const CustomerSegmentSection: React.FC<CustomerSegmentSectionProps> = ({
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {segments.map((seg) => {
+        {segments.map((seg, idx) => {
           const isSelected = selectedSegment && selectedSegment.toLowerCase() === seg.segment.toLowerCase();
 
           return (
             <div
-              key={seg.segment}
+              key={`seg-${seg.segment || 'item'}-${idx}`}
               onClick={() => onSelectSegment?.(seg.segment)}
               className={`group flex flex-col justify-between rounded-xl border p-4 transition-all shadow-2xs ${
                 isSelected 

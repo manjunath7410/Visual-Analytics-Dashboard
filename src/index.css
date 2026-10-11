@@ -2,11 +2,48 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-enterprise-bg: #0B1020;
+  --color-enterprise-surface: #111827;
+  --color-enterprise-card: #151D2F;
+  --color-enterprise-card-hover: #1B263B;
+  --color-enterprise-border: #263247;
+  --color-enterprise-primary: #6366F1;
+  --color-enterprise-cyan: #06B6D4;
+  --color-enterprise-success: #10B981;
+  --color-enterprise-warning: #F59E0B;
+  --color-enterprise-error: #EF4444;
+  --color-enterprise-text: #F8FAFC;
+  --color-enterprise-secondary: #94A3B8;
+  --color-enterprise-muted: #64748B;
+
+  --color-slate-950: #0B1020;
+  --color-slate-900: #151D2F;
+  --color-slate-850: #1B263B;
+  --color-slate-800: #263247;
+}
+
 @layer base {
   :root {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
     color-scheme: light dark;
+  }
+
+  .dark {
+    --bg-primary: #0B1020;
+    --bg-surface: #111827;
+    --bg-card: #151D2F;
+    --bg-card-hover: #1B263B;
+    --border-enterprise: #263247;
+    --accent-indigo: #6366F1;
+    --accent-cyan: #06B6D4;
+    --status-emerald: #10B981;
+    --status-amber: #F59E0B;
+    --status-red: #EF4444;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
   }
 
   body {

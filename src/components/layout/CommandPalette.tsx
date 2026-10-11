@@ -249,19 +249,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
 
       {/* Command Palette Card */}
       <div
-        className="relative w-full max-w-xl rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all duration-150 dark:border-slate-800 dark:bg-slate-900 overflow-hidden flex flex-col"
+        className="relative w-full max-w-xl rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all duration-150 dark:border-[#263247] dark:bg-[#151D2F] overflow-hidden flex flex-col"
         onKeyDown={handleKeyDown}
       >
         {/* Search Header */}
-        <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3.5 dark:border-slate-800">
-          <Search className="h-4 w-4 text-slate-400 shrink-0" />
+        <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3.5 dark:border-[#263247]">
+          <Search className="h-4 w-4 text-slate-400 dark:text-[#64748B] shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Type a command, search pages, or trigger actions..."
-            className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden dark:text-slate-100"
+            placeholder="Search data, reports, or insights..."
+            className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden dark:text-[#F8FAFC] dark:placeholder:text-[#64748B]"
           />
           {query && (
             <button
@@ -271,7 +271,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
               <X className="h-3.5 w-3.5" />
             </button>
           )}
-          <span className="hidden sm:inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+          <span className="hidden sm:inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-500 dark:bg-[#0B1020] dark:border dark:border-[#263247] dark:text-[#94A3B8]">
             ESC
           </span>
         </div>

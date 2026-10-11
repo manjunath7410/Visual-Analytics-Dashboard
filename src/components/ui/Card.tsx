@@ -18,15 +18,15 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     ref
   ) => {
     const elevationStyles = {
-      flat: 'border border-slate-200/90 bg-white dark:border-slate-800/90 dark:bg-slate-900/90 shadow-2xs',
+      flat: 'border border-slate-200/90 bg-white dark:border-[#263247] dark:bg-[#151D2F] shadow-2xs',
       elevated:
-        'border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900',
+        'border border-slate-200 bg-white shadow-xs dark:border-[#263247] dark:bg-[#151D2F]',
       subtle:
-        'border border-slate-200/60 bg-slate-50/60 dark:border-slate-800/60 dark:bg-slate-950/60',
+        'border border-slate-200/60 bg-slate-50/60 dark:border-[#263247] dark:bg-[#111827]',
     };
 
     const interactiveStyles = interactive
-      ? 'hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-150 cursor-pointer'
+      ? 'hover:border-slate-300 dark:hover:border-slate-600 dark:hover:bg-[#1B263B] transition-all duration-150 cursor-pointer'
       : '';
 
     return (
